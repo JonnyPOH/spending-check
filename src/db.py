@@ -62,6 +62,16 @@ def reset(csv_path: Path) -> None:
     _conn = _build(csv_path)
 
 
+def reset_from_df(df: "pd.DataFrame") -> None:
+    """Load from a pre-normalised DataFrame (e.g. from TrueLayer)."""
+    global _conn
+    import pandas as pd  # noqa: F401 — ensure type is resolved
+    conn = duckdb.connect()
+    conn.register("transactions", df)
+    _conn = conn
+    logger.info("Loaded %d transactions from DataFrame", len(df))
+
+
 def run_sql_file(path: Path, params: dict | None = None) -> pd.DataFrame:
     """Execute a .sql file against the in-memory transactions table."""
     sql = path.read_text(encoding="utf-8")
