@@ -1,0 +1,7 @@
+spending_check:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "spending_check.duckdb"   # relative to spending_check/ (where dbt is run from)
+      threads: 4

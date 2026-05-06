@@ -32,3 +32,9 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# dbt
+spending_check.duckdb
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/

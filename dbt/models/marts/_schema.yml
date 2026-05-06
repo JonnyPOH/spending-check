@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: fct_monthly_by_category
+    description: "Total spend per category for the target year/month (set via vars)"
+    columns:
+      - name: category
+        tests: [not_null]
+      - name: total_spend
+        tests: [not_null]
+      - name: transaction_count
+        tests: [not_null]
+      - name: avg_transaction
+        tests: [not_null]
+
+  - name: fct_category_trend
+    description: "Month-over-month spend per category for the last N months"
+    columns:
+      - name: year_month
+        tests: [not_null]
+      - name: category
+        tests: [not_null]
+      - name: total_spend
+        tests: [not_null]
+
+  - name: fct_recurring_merchants
+    description: "Merchants appearing on a near-monthly cadence — likely subscriptions"
+    columns:
+      - name: merchant
+        tests: [not_null, unique]
+      - name: months_active
+        tests: [not_null]
+
+  - name: fct_dormant_subscriptions
+    description: "Merchants that were recurring but have gone quiet for N+ months"
+    columns:
+      - name: merchant
+        tests: [not_null]
+      - name: months_since_last
+        tests: [not_null]
+
+  - name: fct_monthly_net
+    description: "Net amount (income minus spend) per calendar month"
+    columns:
+      - name: period
+        tests: [not_null, unique]
+      - name: net_amount
+        tests: [not_null]
+
+  - name: fct_quarterly_net
+    description: "Net amount per quarter, formatted as YY-Q (e.g. 25-1)"
+    columns:
+      - name: period
+        tests: [not_null, unique]
+      - name: net_amount
+        tests: [not_null]
+
+  - name: fct_broad_category_summary
+    description: "Total spend and monthly average per broad category"
+    columns:
+      - name: broad
+        tests: [not_null, unique]
+      - name: total_amount
+        tests: [not_null]
+      - name: avg_per_month
+        tests: [not_null]

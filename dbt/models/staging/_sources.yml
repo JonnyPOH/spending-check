@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: main
+    description: "Normalised transactions loaded from bank CSV via dbt/load_source.py"
+    tables:
+      - name: transactions
+        description: "One row per bank transaction, cleaned and typed by the Python loader"
+        columns:
+          - name: transaction_date
+            description: "Date of the transaction"
+            tests:
+              - not_null
+          - name: amount
+            description: "Signed amount in GBP — negative = debit, positive = credit"
+            tests:
+              - not_null
+          - name: description
+            description: "Raw transaction description from the bank"
+            tests:
+              - not_null
+          - name: category
+            description: "Granular spending category"
+          - name: broad
+            description: "Broad category grouping (e.g. Food, Transport, Savings)"
+          - name: currency
+            description: "ISO currency code"
+            tests:
+              - accepted_values:
+                  arguments:
+                    values: ["GBP"]
