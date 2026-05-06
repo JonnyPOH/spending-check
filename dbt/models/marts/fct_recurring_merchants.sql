@@ -1,15 +1,14 @@
 with monthly_merchant as (
     select
         merchant,
-        strftime(transaction_date, '%Y-%m')  as year_month,
-        sum(abs(amount))                     as monthly_spend
+        {{ date_to_period('transaction_date') }}  as year_month,
+        sum(abs(amount))                          as monthly_spend
     from {{ ref('stg_transactions') }}
     where
         amount < 0
         and merchant is not null
-        and transaction_date >= date_trunc('month', current_date)
-            - interval '{{ var("recurring_lookback_months") }} months'
-    group by merchant, strftime(transaction_date, '%Y-%m')
+        and transaction_date >= {{ months_ago(var('recurring_lookback_months')) }}
+    group by merchant, {{ date_to_period('transaction_date') }}
 ),
 
 stats as (

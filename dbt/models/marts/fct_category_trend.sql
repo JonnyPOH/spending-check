@@ -1,14 +1,13 @@
 with monthly as (
     select
-        strftime(transaction_date, '%Y-%m')  as year_month,
+        {{ date_to_period('transaction_date') }}  as year_month,
         category,
-        sum(abs(amount))                     as total_spend
+        sum(abs(amount))                          as total_spend
     from {{ ref('stg_transactions') }}
     where
         amount < 0
-        and transaction_date >= date_trunc('month', current_date)
-            - interval '{{ var("category_trend_months") }} months'
-    group by strftime(transaction_date, '%Y-%m'), category
+        and transaction_date >= {{ months_ago(var('category_trend_months')) }}
+    group by {{ date_to_period('transaction_date') }}, category
 )
 
 select

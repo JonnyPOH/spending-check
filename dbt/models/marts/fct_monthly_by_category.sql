@@ -6,7 +6,7 @@ select
 from {{ ref('stg_transactions') }}
 where
     amount < 0
-    and year(transaction_date)  = {{ var('target_year') }}
-    and month(transaction_date) = {{ var('target_month') }}
+    and {{ extract_year('transaction_date') }}  = {{ var('target_year') }}
+    and {{ extract_month('transaction_date') }} = {{ var('target_month') }}
 group by category
 order by total_spend desc

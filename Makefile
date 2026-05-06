@@ -1,7 +1,10 @@
+PYTHON := /home/jonnyoh/.pyenv/versions/3.12.4/bin/python3
+DBT    := /home/jonnyoh/.pyenv/versions/3.12.4/bin/dbt
+
 .PHONY: pipeline app serve test lint dbt-load dbt dbt-test dbt-docs
 
 pipeline:
-	python -m src.pipeline
+	$(PYTHON) -m src.pipeline
 
 app:
 	streamlit run app.py
@@ -16,16 +19,32 @@ lint:
 	ruff check src/ tests/
 	ruff format --check src/ tests/
 
-# dbt targets — run from spending_check/ directory
+# dbt dev targets (DuckDB)
 dbt-load:
-	python dbt/load_source.py
+	$(PYTHON) dbt/load_source.py
 
 dbt: dbt-load
-	dbt run --project-dir dbt --profiles-dir dbt
+	$(DBT) run --project-dir dbt --profiles-dir dbt
 
 dbt-test: dbt
-	dbt test --project-dir dbt --profiles-dir dbt
+	$(DBT) test --project-dir dbt --profiles-dir dbt
 
 dbt-docs: dbt
-	dbt docs generate --project-dir dbt --profiles-dir dbt
-	dbt docs serve --project-dir dbt --profiles-dir dbt
+	$(DBT) docs generate --project-dir dbt --profiles-dir dbt
+	$(DBT) docs serve --project-dir dbt --profiles-dir dbt --port 8765 --no-browser
+
+# dbt prod targets (BigQuery)
+BQ_VARS := --vars '{"source_schema": "spending_check"}'
+
+dbt-load-prod:
+	$(PYTHON) dbt/load_source.py --target prod
+
+dbt-prod: dbt-load-prod
+	$(DBT) run --project-dir dbt --profiles-dir dbt --target prod $(BQ_VARS)
+
+dbt-test-prod: dbt-prod
+	$(DBT) test --project-dir dbt --profiles-dir dbt --target prod $(BQ_VARS)
+
+dbt-docs-prod: dbt-prod
+	$(DBT) docs generate --project-dir dbt --profiles-dir dbt --target prod $(BQ_VARS)
+	$(DBT) docs serve --project-dir dbt --profiles-dir dbt --port 8765 --no-browser

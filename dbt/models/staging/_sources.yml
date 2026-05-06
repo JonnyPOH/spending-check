@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: raw
-    schema: main
+    schema: "{{ var('source_schema', 'main') }}"
     description: "Normalised transactions loaded from bank CSV via dbt/load_source.py"
     tables:
       - name: transactions

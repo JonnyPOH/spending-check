@@ -1,23 +1,22 @@
 with merchant_months as (
     select
         merchant,
-        strftime(transaction_date, '%Y-%m')  as year_month,
-        max(transaction_date)                as last_seen
+        {{ date_to_period('transaction_date') }}  as year_month,
+        max(transaction_date)                     as last_seen
     from {{ ref('stg_transactions') }}
     where
         amount < 0
         and merchant is not null
-        and transaction_date >= date_trunc('month', current_date)
-            - interval '{{ var("dormant_lookback_months") }} months'
-    group by merchant, strftime(transaction_date, '%Y-%m')
+        and transaction_date >= {{ months_ago(var('dormant_lookback_months')) }}
+    group by merchant, {{ date_to_period('transaction_date') }}
 ),
 
 summary as (
     select
         merchant,
-        count(distinct year_month)                       as months_active,
-        max(last_seen)                                   as last_transaction_date,
-        datediff('month', max(last_seen), current_date)  as months_since_last
+        count(distinct year_month)                                    as months_active,
+        max(last_seen)                                                as last_transaction_date,
+        {{ date_diff_months('max(last_seen)', 'current_date') }}      as months_since_last
     from merchant_months
     group by merchant
 )

@@ -12,6 +12,7 @@ target-path:    "target"
 clean-targets:  ["target", "dbt_packages"]
 
 vars:
+  source_schema:             main       # override to 'spending_check' for BigQuery prod
   target_year:               2026
   target_month:              4
   category_trend_months:     6

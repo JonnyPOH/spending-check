@@ -1,10 +1,10 @@
 select
     broad,
-    round(sum(amount), 2)                                                     as total_amount,
+    round(sum(amount), 2)                                                   as total_amount,
     round(
-        sum(amount) / count(distinct strftime(transaction_date, '%Y-%m')),
+        sum(amount) / count(distinct {{ date_to_period('transaction_date') }}),
         2
-    )                                                                          as avg_per_month
+    )                                                                       as avg_per_month
 from {{ ref('stg_transactions') }}
 where broad is not null
   and broad != ''

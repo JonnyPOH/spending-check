@@ -1,7 +1,17 @@
 spending_check:
   target: dev
   outputs:
+
     dev:
       type: duckdb
-      path: "spending_check.duckdb"   # relative to spending_check/ (where dbt is run from)
+      path: "spending_check.duckdb"
       threads: 4
+
+    prod:
+      type: bigquery
+      method: oauth
+      project: spending-check-495420
+      dataset: spending_check
+      location: europe-west2
+      threads: 4
+      timeout_seconds: 300

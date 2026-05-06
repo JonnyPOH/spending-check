@@ -4,11 +4,11 @@ with source as (
 
 select
     transaction_date,
-    trim(description)                                         as description,
+    trim(description)                                                                    as description,
     amount,
-    lower(trim(category))                                     as category,
-    lower(trim(coalesce(nullif(broad, ''), category)))        as broad,
-    coalesce(nullif(trim(coalesce(merchant::varchar, '')), ''), null)  as merchant,
+    lower(trim(category))                                                                as category,
+    lower(trim(coalesce(nullif(broad, ''), category)))                                   as broad,
+    coalesce(nullif(trim({{ cast_string('merchant') }}), ''), null)                      as merchant,
     currency
 from source
 where transaction_date is not null
