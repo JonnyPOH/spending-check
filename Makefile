@@ -1,7 +1,18 @@
 PYTHON := /home/jonnyoh/.pyenv/versions/3.12.4/bin/python3
 DBT    := /home/jonnyoh/.pyenv/versions/3.12.4/bin/dbt
 
-.PHONY: pipeline app serve test lint dbt-load dbt dbt-test dbt-docs
+GCP_PROJECT := spending-check-495420
+GCP_REGION  := europe-west2
+SERVICE     := spending-check
+
+.PHONY: pipeline app serve test lint deploy dbt-load dbt dbt-test dbt-docs
+
+deploy:
+	gcloud run deploy $(SERVICE) \
+		--source . \
+		--project $(GCP_PROJECT) \
+		--region $(GCP_REGION) \
+		--allow-unauthenticated
 
 pipeline:
 	$(PYTHON) -m src.pipeline

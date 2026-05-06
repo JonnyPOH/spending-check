@@ -34,7 +34,7 @@ def _api_domain() -> str:
     return "truelayer-sandbox.com" if config.TRUELAYER_SANDBOX else "truelayer.com"
 
 
-def auth_url() -> str:
+def auth_url(redirect_uri: str | None = None) -> str:
     providers = "uk-ob-all uk-oauth-all"
     if config.TRUELAYER_SANDBOX:
         providers += " uk-cs-mock"  # mock bank for sandbox testing
@@ -43,21 +43,21 @@ def auth_url() -> str:
         "response_type": "code",
         "client_id":     config.TRUELAYER_CLIENT_ID,
         "scope":         "accounts transactions offline_access",
-        "redirect_uri":  config.TRUELAYER_REDIRECT_URI,
+        "redirect_uri":  redirect_uri or config.TRUELAYER_REDIRECT_URI,
         "providers":     providers,
         "nonce":         secrets.token_urlsafe(16),
     }
     return f"https://auth.{_auth_domain()}/?{urllib.parse.urlencode(params)}"
 
 
-def exchange_code(code: str) -> str:
+def exchange_code(code: str, redirect_uri: str | None = None) -> str:
     resp = httpx.post(
         f"https://auth.{_auth_domain()}/connect/token",
         data={
             "grant_type":    "authorization_code",
             "client_id":     config.TRUELAYER_CLIENT_ID,
             "client_secret": config.TRUELAYER_CLIENT_SECRET,
-            "redirect_uri":  config.TRUELAYER_REDIRECT_URI,
+            "redirect_uri":  redirect_uri or config.TRUELAYER_REDIRECT_URI,
             "code":          code,
         },
         timeout=30,

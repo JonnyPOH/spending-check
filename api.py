@@ -114,23 +114,24 @@ async def analyse(
 
 
 @app.get("/connect")
-async def connect():
+async def connect(redirect_uri: str | None = None):
     """Return the TrueLayer auth URL for the app to open in a browser."""
     from src.truelayer import auth_url
-    return {"url": auth_url()}
+    return {"url": auth_url(redirect_uri), "redirect_uri": redirect_uri}
 
 
 @app.post("/analyse-from-bank", response_model=AnalyseResponse)
 async def analyse_from_bank(
-    code:  str       = Form(...),
-    year:  int | None = Form(None),
-    month: int | None = Form(None),
+    code:         str       = Form(...),
+    redirect_uri: str | None = Form(None),
+    year:         int | None = Form(None),
+    month:        int | None = Form(None),
 ):
     """Exchange a TrueLayer auth code, fetch transactions, run the pipeline."""
     from src.truelayer import exchange_code, fetch_transactions
     from src.db import reset_from_df
 
-    access_token = exchange_code(code)
+    access_token = exchange_code(code, redirect_uri)
     df           = fetch_transactions(access_token)
     reset_from_df(df)
 
